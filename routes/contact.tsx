@@ -7,7 +7,7 @@ enum Language {
   //   ES = "es",
   //   FR = "fr",
   //   DE = "de",
-  //   IT = "it",
+    IT = "it",
 }
 
 enum FieldNames {
@@ -24,6 +24,14 @@ enum FieldLimits {
   MESSAGE_MAX = 500,
 }
 
+enum ZodErrors {
+  Z_NAME_MIN = "z_name_min",
+  Z_NAME_MAX = "z_name_max",
+  Z_EMAIL_INVALID = "z_email_invalid",
+  Z_MESSAGE_MIN = "z_message_min",
+  Z_MESSAGE_MAX = "z_message_max",
+}
+
 type Translation = {
   lang: Language;
   form: {
@@ -35,11 +43,11 @@ type Translation = {
     successMessage: string;
   };
   errors: {
-    z_name_min: string;
-    z_name_max: string;
-    z_email_invalid: string;
-    z_message_min: string;
-    z_message_max: string;
+    [ZodErrors.Z_NAME_MIN]: string;
+    [ZodErrors.Z_NAME_MAX]: string;
+    [ZodErrors.Z_EMAIL_INVALID]: string;
+    [ZodErrors.Z_MESSAGE_MIN]: string;
+    [ZodErrors.Z_MESSAGE_MAX]: string;
   };
 };
 
@@ -59,11 +67,34 @@ const translations: Translations = {
         "Your message has been sent. Thank you for contacting us.",
     },
     errors: {
-      z_name_min: "Name must be at least 2 characters long.",
-      z_name_max: "Name must be at most 50 characters long.",
-      z_email_invalid: "Please enter a valid email address.",
-      z_message_min: "Message must be at least 10 characters long.",
-      z_message_max: "Message must be at most 500 characters long.",
+      [ZodErrors.Z_NAME_MIN]: "Name must be at least [%1] characters long.",
+      [ZodErrors.Z_NAME_MAX]: "Name must be at most [%1] characters long.",
+      [ZodErrors.Z_EMAIL_INVALID]: "Please enter a valid email address.",
+      [ZodErrors.Z_MESSAGE_MIN]:
+        "Message must be at least [%1] characters long.",
+      [ZodErrors.Z_MESSAGE_MAX]:
+        "Message must be at most [%1] characters long.",
+    },
+  },
+  [Language.IT]: {
+    lang: Language.IT,
+    form: {
+      title: "Contattaci",
+      name: "Nome",
+      email: "Email",
+      message: "Messaggio",
+      submit: "Invia Messaggio",
+      successMessage:
+        "Il messaggio è stato spedito. Grazie per averci contattato.",
+    },
+    errors: {
+      [ZodErrors.Z_NAME_MIN]: "Il nome deve essere lungo almeno [%1] caratteri.",
+      [ZodErrors.Z_NAME_MAX]: "Il nome non può essere più lungo di [%1] caratteri.",
+      [ZodErrors.Z_EMAIL_INVALID]: "Per favore inserire un indirizzo email valido.",
+      [ZodErrors.Z_MESSAGE_MIN]:
+        "Il messaggio deve essere lungo almeno [%1] caratteri.",
+      [ZodErrors.Z_MESSAGE_MAX]:
+        "Il messaggio non può essere più lungo di [%1] caratteri.",
     },
   },
 };
@@ -71,20 +102,26 @@ const translations: Translations = {
 // This schema will be used to validate the input on the server.
 const contactSchema = z.object({
   name: z.string()
-    .min(FieldLimits.NAME_MIN, "Name must be at least 2 characters long.")
-    .max(FieldLimits.NAME_MAX, "Name must be at most 50 characters long."),
+    .min(
+      FieldLimits.NAME_MIN,
+      `${ZodErrors.Z_NAME_MIN}|${FieldLimits.NAME_MIN}`,
+    )
+    .max(
+      FieldLimits.NAME_MAX,
+      `${ZodErrors.Z_NAME_MAX}|${FieldLimits.NAME_MAX}`,
+    ),
 
   email: z.string()
-    .email("Please enter a valid email address."),
+    .email(ZodErrors.Z_EMAIL_INVALID),
 
   message: z.string()
     .min(
       FieldLimits.MESSAGE_MIN,
-      "Message must be at least 10 characters long.",
+      `${ZodErrors.Z_MESSAGE_MIN}|${FieldLimits.MESSAGE_MIN}`,
     )
     .max(
       FieldLimits.MESSAGE_MAX,
-      "Message must be at most 500 characters long.",
+      `${ZodErrors.Z_MESSAGE_MAX}|${FieldLimits.MESSAGE_MAX}`,
     ),
 });
 
@@ -109,10 +146,13 @@ export const handler: Handlers<PageData> = {
     const acceptLanguageHeader = req.headers.get("Accept-Language");
     if (acceptLanguageHeader) {
       console.log("Accept-Language header:", acceptLanguageHeader);
-        const lang = acceptLanguageHeader.split(",")[0].trim() as Language;
-        if(lang in translations) {
-            translation = translations[lang]
-        }
+      const lang = acceptLanguageHeader.split(",")[0].trim().split("-")[0]
+        .toLowerCase() as Language;
+      console.log("Detected language:", lang);
+      if (lang in translations) {
+        translation = translations[lang];
+        console.log("Detected language:", lang);
+      }
     }
 
     return ctx.render({ success: false, translation });
@@ -137,16 +177,22 @@ export const handler: Handlers<PageData> = {
 
     // If validation fails...
     if (!validationResult.success) {
+      const errors = validationResult.error.flatten().fieldErrors;
       console.error(
         "Validation failed:",
-        validationResult.error.flatten().fieldErrors,
+        errors,
       );
+
+      translateErrors(errors, translation.errors);
+
+      console.log("Translated errors:", errors);
+
       // Re-render the page, passing the errors and the data the user submitted.
       // This allows you to show error messages and keep the form populated.
       return ctx.render({
         success: false,
         translation,
-        errors: validationResult.error.flatten().fieldErrors,
+        errors,
         submittedData: submittedData,
       });
     }
@@ -164,6 +210,7 @@ export const handler: Handlers<PageData> = {
 export default function ContactPage({ data }: PageProps<PageData>) {
   const t = data.translation!;
   const e = data.errors || {};
+  console.log("Errors:", e);
 
   return (
     <div>
@@ -237,4 +284,37 @@ export default function ContactPage({ data }: PageProps<PageData>) {
       )}
     </div>
   );
+}
+
+function translateErrors(
+  errors: any,
+  translations: any,
+) {
+  for (const key in errors) {
+    const value = errors[key];
+    console.log("Translating error for key:", key, "with value:", value);
+    const message = Array.isArray(value) ? value[0] : value;
+
+    const chunks = message.split("|");
+    if (chunks.length > 1) {
+      const errorKey = chunks[0].trim();
+      if (errorKey in translations) {
+        let t = translations[errorKey];
+        for (let i = 1; i < chunks.length; i++) {
+          const param = chunks[i].trim();
+          t = t.replace(
+            "%" + i,
+            param,
+          );
+          errors[key] = [t];
+        }
+      }
+    } else {
+      const [errorKey] = chunks;
+      if (errorKey in translations) {
+        errors[key] = [translations[errorKey]];
+      }
+    }
+    console.log("Translated error for key:", key, "to:", errors[key]);
+  }
 }
