@@ -29,7 +29,7 @@ jobs:
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
         with:
-          project: "apgangelipa-omnia3d-68"
+          project: "omnia3d"
           entrypoint: "main.ts"
           root: "."
           
