@@ -1,36 +1,64 @@
 {
-  "lock": false,
-  "tasks": {
-    "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
-    "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
-    "manifest": "deno task cli manifest $(pwd)",
-    "start": "deno run -A --watch=static/,routes/ dev.ts",
-    "build": "deno run -A dev.ts build",
-    "preview": "deno run -A main.ts",
-    "update": "deno run -A -r https://fresh.deno.dev/update ."
-  },
-  "lint": {
-    "rules": {
-      "tags": [
-        "fresh",
-        "recommended"
-      ]
+    "lock": false,
+    "tasks": {
+        "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
+        "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
+        "manifest": "deno task cli manifest $(pwd)",
+        "start": "deno run -A --watch=static/,routes/ dev.ts",
+        "build": "deno run -A dev.ts build",
+        "preview": "deno run -A main.ts",
+        "update": "deno run -A -r https://fresh.deno.dev/update ."
+    },
+    "fmt": {
+        "indentWidth": 4,
+        "useTabs": false,
+        "lineWidth": 80,
+        "singleQuote": false,
+        "spaceAround": false,
+        "nextControlFlowPosition": "nextLine"
+    },
+    "lint": {
+        "rules": {
+            "tags": [
+                "fresh",
+                "recommended"
+            ]
+        }
+    },
+    "exclude": [
+        "**/_fresh/*"
+    ],
+    "imports": {
+        "$fresh/": "https://deno.land/x/fresh@1.7.3/",
+        "preact": "https://esm.sh/preact@10.22.0",
+        "preact/": "https://esm.sh/preact@10.22.0/",
+        "@preact/signals": "https://esm.sh/*@preact/signals@1.2.2",
+        "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.1",
+        "$std/": "https://deno.land/std@0.216.0/",
+        "zod": "https://deno.land/x/zod@v3.23.8/mod.ts",
+
+        "@three": "https://esm.sh/three@0.175.0",
+        "@three/OrbitControls": "https://esm.sh/three@0.175.0/examples/jsm/controls/OrbitControls.js",
+        "@three/GLTFLoader": "https://esm.sh/three@0.175.0/addons/loaders/GLTFLoader.js",
+        "@three/STLLoader": "https://esm.sh/three@0.175.0/addons/loaders/STLLoader.js",
+        "@three/RGBELoader": "https://esm.sh/three@0.175.0/addons/loaders/RGBELoader.js",
+        "@three/EXRLoader": "https://esm.sh/three@0.175.0/addons/loaders/EXRLoader.js",
+        "@three/GroundedSkybox": "https://esm.sh/three@0.175.0/addons/objects/GroundedSkybox.js",
+        "@three/RoomEnvironment": "https://esm.sh/three@0.175.0/addons/environments/RoomEnvironment.js",
+        "@three/GLTFExporter": "https://esm.sh/three@0.175.0/addons/exporters/GLTFExporter.js",
+        "@three/STLExporter": "https://esm.sh/three@0.175.0/addons/exporters/STLExporter.js",
+        "@three/SimplexNoise": "https://esm.sh/three@0.175.0/addons/math/SimplexNoise.js",
+        "@three/RectAreaLightUniformsLib": "https://esm.sh/three@0.175.0/addons/lights/RectAreaLightUniformsLib.js",
+
+        "@three/EffectComposer": "https://esm.sh/three@0.175.0/addons/postprocessing/EffectComposer.js",
+        "@three/RenderPass": "https://esm.sh/three@0.175.0/addons/postprocessing/RenderPass.js",
+        "@three/UnrealBloomPass": "https://esm.sh/three@0.175.0/addons/postprocessing/UnrealBloomPass.js",
+        "@three/SSAOPass": "https://esm.sh/three@0.175.0/addons/postprocessing/SSAOPass.js",
+
+        "@three/CSG": "https://esm.sh/three-csg-ts@3.2.0"
+    },
+    "compilerOptions": {
+        "jsx": "react-jsx",
+        "jsxImportSource": "preact"
     }
-  },
-  "exclude": [
-    "**/_fresh/*"
-  ],
-  "imports": {
-    "$fresh/": "https://deno.land/x/fresh@1.7.3/",
-    "preact": "https://esm.sh/preact@10.22.0",
-    "preact/": "https://esm.sh/preact@10.22.0/",
-    "@preact/signals": "https://esm.sh/*@preact/signals@1.2.2",
-    "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.1",
-    "$std/": "https://deno.land/std@0.216.0/",
-    "zod": "https://deno.land/x/zod@v3.23.8/mod.ts"
-  },
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact"
-  }
 }

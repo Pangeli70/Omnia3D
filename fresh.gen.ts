@@ -9,21 +9,25 @@ import * as $contact from "./routes/contact.tsx";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $Counter from "./islands/Counter.tsx";
+import * as $LinkButton from "./islands/LinkButton.tsx";
+import * as $Viewer from "./islands/Viewer.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
-  routes: {
-    "./routes/_404.tsx": $_404,
-    "./routes/_app.tsx": $_app,
-    "./routes/api/joke.ts": $api_joke,
-    "./routes/contact.tsx": $contact,
-    "./routes/greet/[name].tsx": $greet_name_,
-    "./routes/index.tsx": $index,
-  },
-  islands: {
-    "./islands/Counter.tsx": $Counter,
-  },
-  baseUrl: import.meta.url,
+    routes: {
+        "./routes/_404.tsx": $_404,
+        "./routes/_app.tsx": $_app,
+        "./routes/api/joke.ts": $api_joke,
+        "./routes/contact.tsx": $contact,
+        "./routes/greet/[name].tsx": $greet_name_,
+        "./routes/index.tsx": $index,
+    },
+    islands: {
+        "./islands/Counter.tsx": $Counter,
+        "./islands/LinkButton.tsx": $LinkButton,
+        "./islands/Viewer.tsx": $Viewer,
+    },
+    baseUrl: import.meta.url,
 } satisfies Manifest;
 
 export default manifest;
