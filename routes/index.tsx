@@ -27,7 +27,7 @@ export default function Home() {
                     />
                     <h1 class="text-4xl font-bold">Welcome to Ultra-V</h1>
                     <p class="my-4">
-                        3D viewer powered by Three.js and Fresh.
+                        3D viewer powered by Three.js and Fresh on Deno Deploy.
                     </p>
                     <Counter count={count} />
                     <p>
